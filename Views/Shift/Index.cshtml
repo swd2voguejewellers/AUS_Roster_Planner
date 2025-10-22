@@ -1,121 +1,49 @@
-@model ShiftPlanner.ViewModels.WeekShiftViewModel
 @{
-    ViewData["Title"] = "Week Roster Planner";
+    ViewData["Title"] = "Weekly Roster Planner";
 
+    // Compute current week
+    var today = DateTime.Today;
+    var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+    var endOfWeek = startOfWeek.AddDays(6);
+
+    var weekDays = Enumerable.Range(0, 7).Select(i => startOfWeek.AddDays(i)).ToList();
 }
-<div class="card shadow-sm">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="card-title mb-0">Week Roster Planner</h3>
-            <div>
-                <a class="btn btn-primary me-2" href="#" onclick="document.getElementById('saveForm').submit();return false;">Save Plan</a>
-                <a class="btn btn-success me-2" href="#" onclick="document.getElementById('csvForm').submit();return false;">Export CSV</a>
-                <a class="btn btn-outline-secondary" href="#" onclick="document.getElementById('exportForm').submit();return false;">Export Excel</a>
-            </div>
-        </div>
 
-        @if(TempData["Message"] != null) {
-            <div class="alert alert-success">@TempData["Message"]</div>
-        }
-        @if(TempData["Errors"] != null) {
-            <div class="alert alert-danger">@TempData["Errors"]</div>
-        }
-
-        <div class="table-responsive">
-            <form id="saveForm" asp-action="Save" method="post">
-                @for(int i=0;i<Model.Slots.Count;i++)
-                {
-                    <input type="hidden" name=$"Slots[{i}].Day" value="@Model.Slots[i].Day" />
-                    <input type="hidden" name=$"Slots[{i}].TimeRange" value="@Model.Slots[i].TimeRange" />
-                    <input type="hidden" name=$"Slots[{i}].Hours" value="@Model.Slots[i].Hours" />
-                }
-                <table class="table table-striped align-middle">
-                    <thead class="table-dark">
-                        <tr><th>Day</th><th>Time</th><th>Assign Staff</th><th class="text-end">Hours</th></tr>
-                    </thead>
-                    <tbody>
-                        @for(int i=0;i<Model.Slots.Count;i++)
-                        {
-                            var slot = Model.Slots[i];
-                            <tr class="@(slot.Day=="Sat"||slot.Day=="Sun"?"table-secondary":"")">
-                                <td class="fw-semibold">@slot.Day</td>
-                                <td>@slot.TimeRange</td>
-                                <td style="min-width:240px;">
-                                    <select class="form-select form-select-sm" name=$"Slots[{i}].StaffId">
-                                        <option value="">(Unassigned)</option>
-                                        @foreach(var s in Model.Staff)
-                                        {
-                                            var sel = (slot.StaffId==s.Id)?"selected":"";
-                                            <option value="@s.Id" >
-                                                @s.Name
-                                            </option>
-                                        }
-                                    </select>
-                                </td>
-                                <td class="text-end">@slot.Hours</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </form>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Staff Summary</h5>
-                        <ul class="list-group list-group-flush">
-                            @foreach(var s in Model.Staff)
-                            {
-                                Model.TotalHours.TryGetValue(s.Id, out double hrs);
-                                Model.OvertimeHours.TryGetValue(s.Id, out double ot);
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="fw-medium">@s.Name</span><br />
-                                        <small class="text-muted">@(s.IsManager?"Manager":(s.IsPermanent?"Permanent":"Casual"))</small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div>@hrs.ToString("0.##") hrs</div>
-                                        <div><small class="text-warning">OT: @ot.ToString("0.##")</small></div>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Rules & Coverage</h5>
-                        <p class="mb-1">• Week defined: Sun–Sat. Standard: 40 hrs/week. OT paid after 40 hrs.</p>
-                        <p class="mb-1">• Manager should be scheduled (recommended 5 days).</p>
-                        <p class="mb-1">• At least 2 permanent staff should be present during open hours.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <form id="csvForm" asp-action="ExportCsv" method="post" style="display:none;">
-            @for(int i=0;i<Model.Slots.Count;i++)
-            {
-                <input type="hidden" name=$"Slots[{i}].Day" value="@Model.Slots[i].Day" />
-                <input type="hidden" name=$"Slots[{i}].TimeRange" value="@Model.Slots[i].TimeRange" />
-                <input type="hidden" name=$"Slots[{i}].Hours" value="@Model.Slots[i].Hours" />
-                <input type="hidden" name=$"Slots[{i}].StaffId" value="@Model.Slots[i].StaffId" />
-            }
-        </form>
-
-        <form id="exportForm" asp-action="ExportExcel" method="post" style="display:none;">
-            @for(int i=0;i<Model.Slots.Count;i++)
-            {
-                <input type="hidden" name=$"Slots[{i}].Day" value="@Model.Slots[i].Day" />
-                <input type="hidden" name=$"Slots[{i}].TimeRange" value="@Model.Slots[i].TimeRange" />
-                <input type="hidden" name=$"Slots[{i}].Hours" value="@Model.Slots[i].Hours" />
-                <input type="hidden" name=$"Slots[{i}].StaffId" value="@Model.Slots[i].StaffId" />
-            }
-        </form>
-
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Weekly Roster Planner</h3>
+        <h5 class="text-muted">
+            Week: @startOfWeek.ToString("MMM dd") - @endOfWeek.ToString("MMM dd, yyyy")
+        </h5>
     </div>
+
+    <form id="rosterForm">
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle" id="rosterTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="bg-secondary text-white">Day</th>
+                        <!-- Employee headers filled dynamically -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var date in weekDays)
+                    {
+                        var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                        <tr class="@(isWeekend ? "table-secondary" : "")">
+                            <td class="fw-bold bg-light">
+                                @date.ToString("dddd")<br />
+                                <small class="text-muted">@date.ToString("MMM dd")</small>
+                            </td>
+                            <!-- JS will add employee columns -->
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary mt-3">Save Roster</button>
+        </div>
+    </form>
 </div>

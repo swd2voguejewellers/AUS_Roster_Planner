@@ -4,16 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Page Title for Accessibility -->
     <title>@ViewData["Title"] - ShiftPlanner</title>
-
-    <!-- Local Bootstrap CSS -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
-
-    <!-- Custom site-wide styles -->
-    <link rel="stylesheet" href="~/css/site.css" />
-
-    <!-- Optional favicon -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="icon" type="image/png" href="~/favicon.png" />
 </head>
 <body>
@@ -39,18 +32,16 @@
         </div>
     </nav>
 
-    <!-- Main Page Container -->
     <main class="container mt-4 mb-5">
         @RenderBody()
     </main>
 
-    <!-- Footer -->
     <footer class="text-center text-muted small mt-auto mb-3">
         <hr />
         <p>© @DateTime.Now.Year ShiftPlanner. All rights reserved.</p>
     </footer>
-
-    <!-- Local Bootstrap JS -->
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
 </body>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+<script src="~/js/shift.js" asp-append-version="true"></script>
 </html>
