@@ -1,0 +1,4 @@
+body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
+.card-title{font-size:1.05rem}
+.fw-medium{font-weight:600}
+.table-striped>tbody>tr.table-secondary>td{background:#f8f9fa}
