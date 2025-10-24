@@ -94,5 +94,18 @@ namespace ShiftPlanner.Controllers
                 permanentLeave
             });
         }
+
+        [HttpPost("api/roster/save")]
+        public async Task<IActionResult> Save([FromBody] Roster roster)
+        {
+            if (roster == null || roster.Entries.Count == 0)
+                return BadRequest("Invalid roster data.");
+
+            var success = await _shiftRepository.SaveOrUpdateRosterAsync(roster);
+            if (success)
+                return Ok(new { message = "Roster saved successfully." });
+            else
+                return StatusCode(500, "Failed to save roster.");
+        }
     }
 }
