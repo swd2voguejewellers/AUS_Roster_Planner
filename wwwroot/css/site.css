@@ -10,3 +10,33 @@ body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
     vertical-align: middle;
 }
 
+.roster-scroll {
+    max-height: 500px; 
+    overflow-x: auto;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+#rosterTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #f8f9fa; 
+}
+
+.roster-scroll::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+
+.roster-scroll::-webkit-scrollbar-thumb {
+    background: #aaa;
+    border-radius: 8px;
+}
+
+    .roster-scroll::-webkit-scrollbar-thumb:hover {
+        background: #777;
+    }
+
+
