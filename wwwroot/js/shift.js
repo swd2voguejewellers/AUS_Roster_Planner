@@ -56,38 +56,94 @@
     // LOAD DEFAULT ROSTER
     // ==========================
     function loadDefaultRoster() {
-        $.get('/api/roster/suggestion', function (res) {
-            const { days, permanentLeave } = res;
-            rosterDefaults = {};
+        const today = new Date();
+        const monday = new Date(today.setDate(today.getDate() - today.getDay())); // week start
+        const weekStart = monday.toISOString().split('T')[0];
+        const $tbody = $('#rosterTable tbody');
+        const $thead = $('#rosterTable thead');
 
-            days.forEach(d => {
-                const [from, to] = d.timeRange.split('-');
-                rosterDefaults[d.day] = { from, to, hours: d.hours, needCasuals: d.needCasuals };
+        $.get(`/api/roster/load?weekStart=${weekStart}`, function (res) {
+            $tbody.find('tr').each(function () {
+                $(this).find('td:gt(0)').remove(); // clear all except first column
             });
 
-            $tbody.find('tr').each(function () {
-                const day = $(this).find('td:first').clone().children().remove().end().text().trim();
+            if (res.type === 'saved') {
+                // 🟢 Load saved roster
+                const entriesByDay = {};
 
-                staffList.forEach(s => {
-                    const role = s.isManager ? 'Manager' : (s.isPermanent ? 'Permanent' : 'Casual');
-                    const color = COLORS[role];
-                    const leaveDays = permanentLeave[s.firstName] || permanentLeave[role] || [];
-                    const isLeave = leaveDays.includes(day);
+                // Group entries by day
+                res.entries.forEach(e => {
+                    if (!entriesByDay[e.day]) entriesByDay[e.day] = [];
+                    entriesByDay[e.day].push(e);
+                });
 
-                    const fromTime = rosterDefaults[day]?.from || '';
-                    const toTime = rosterDefaults[day]?.to || '';
-                    const totalHours = rosterDefaults[day]?.hours || 0;
-                    const disableCasual = role === 'Casual' && totalHours !== 12;
-                    const disabledAttr = disableCasual ? 'disabled' : '';
-                    const fromVal = disableCasual ? '' : fromTime;
-                    const toVal = disableCasual ? '' : toTime;
+                console.log(entriesByDay)
+                $tbody.find('tr').each(function () {
+                    const day = $(this).find('td:first small.text-muted').text().trim();
+                    const entries = entriesByDay[day] || [];
 
-                    const $cell = $('<td>').addClass('p-2 align-middle').css('background-color', isLeave ? '#f8d7da' : color + '22');
+                    staffList.forEach(s => {
+                        const entry = entries.find(e => e.staffId == s.employeeID);
+                        const role = s.isManager ? 'Manager' : (s.isPermanent ? 'Permanent' : 'Casual');
+                        const color = COLORS[role];
+                        const isLeave = entry?.isLeave || false;
 
-                    if (isLeave) {
-                        $cell.html('<span class="badge bg-danger w-100">Leave</span>');
-                    } else {
-                        $cell.append(`
+                        const $cell = $('<td>').addClass('p-2 align-middle')
+                            .css('background-color', isLeave ? '#f8d7da' : color + '22');
+
+                        if (isLeave) {
+                            $cell.html('<span class="badge bg-danger w-100">Leave</span>');
+                        } else {
+                            $cell.append(`
+                            <div class="input-group input-group-sm shadow-sm"
+                                 style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                                <input type="time" class="form-control text-center from-time"
+                                       value="${entry?.from || ''}" style="border: none; min-width: 95px;">
+                                <span class="input-group-text bg-light border-start border-end">to</span>
+                                <input type="time" class="form-control text-center to-time"
+                                       value="${entry?.to || ''}" style="border: none; min-width: 95px;">
+                            </div>
+                        `);
+                        }
+
+                        $(this).append($cell);
+                    });
+                });
+            } else {
+                // 🟠 Fallback to suggested default
+                console.log('Loaded suggested roster');
+                const { days, permanentLeave } = res;
+                rosterDefaults = {};
+
+                days.forEach(d => {
+                    const [from, to] = d.timeRange.split('-');
+                    rosterDefaults[d.day] = { from, to, hours: d.hours, needCasuals: d.needCasuals };
+                });
+
+                $tbody.find('tr').each(function () {
+                    const day = $(this).find('td:first').clone().children().remove().end().text().trim();
+
+                    staffList.forEach(s => {
+                        const role = s.isManager ? 'Manager' : (s.isPermanent ? 'Permanent' : 'Casual');
+                        const color = COLORS[role];
+                        const leaveDays = permanentLeave[s.firstName] || [];
+                        const isLeave = leaveDays.includes(day);
+
+                        const fromTime = rosterDefaults[day]?.from || '';
+                        const toTime = rosterDefaults[day]?.to || '';
+                        const totalHours = rosterDefaults[day]?.hours || 0;
+                        const disableCasual = role === 'Casual' && totalHours !== 12;
+                        const disabledAttr = disableCasual ? 'disabled' : '';
+                        const fromVal = disableCasual ? '' : fromTime;
+                        const toVal = disableCasual ? '' : toTime;
+
+                        const $cell = $('<td>').addClass('p-2 align-middle')
+                            .css('background-color', isLeave ? '#f8d7da' : color + '22');
+
+                        if (isLeave) {
+                            $cell.html('<span class="badge bg-danger w-100">Leave</span>');
+                        } else {
+                            $cell.append(`
                             <div class="input-group input-group-sm shadow-sm"
                                  style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                                 <input type="time" class="form-control text-center from-time"
@@ -97,11 +153,13 @@
                                        value="${toVal}" style="border: none; min-width: 95px;" ${disabledAttr}>
                             </div>
                         `);
-                    }
-                    $(this).append($cell);
+                        }
+                        $(this).append($cell);
+                    });
                 });
-            });
+            }
 
+            // Common header styling
             $thead.find('th:first-child, #rosterTable tbody td:first-child').css({
                 backgroundColor: '#6c757d',
                 color: 'white',
@@ -113,32 +171,66 @@
         });
     }
 
+
     // ==========================
     // SAVE ROSTER
     // ==========================
     $('#rosterForm').on('submit', function (e) {
         e.preventDefault();
 
-        const rosterData = [];
+        const today = new Date();
+        const monday = new Date(today.setDate(today.getDate() - today.getDay())); // week start (Sunday = 0)
+        const weekStart = monday.toISOString(); // send full ISO string
+        const createdBy = 'Manager'; // optional, set from your session or user context
+
+        const entries = [];
         $('#rosterTable tbody tr').each(function () {
-            const day = $(this).find('td:first').text().trim();
+            const dayName = $(this).find('td:first small.text-muted').text().trim();;
+
             $(this).find('td:gt(0)').each(function (i) {
                 const from = $(this).find('.from-time').val();
                 const to = $(this).find('.to-time').val();
                 const isLeave = $(this).find('.badge.bg-danger').length > 0;
-                rosterData.push({ day, staffIndex: i, from, to, isLeave });
+
+                const staff = staffList[i]; // assumes staffList is in the same order as table columns
+                if (!staff) return;
+
+                entries.push({
+                    rosterId: 0,      // will be set on backend
+                    staffId: staff.employeeID,
+                    dayName,
+                    fromTime: from || null,
+                    toTime: to || null,
+                    isLeave,
+                    isDeleted: false
+                });
             });
         });
+
+        const roster = {
+            rosterId: 0,
+            weekStart,
+            createdBy,
+            isDeleted: false,
+            entries
+        };
 
         $.ajax({
             url: '/api/roster/save',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(rosterData),
-            success: () => alert('Roster saved successfully!'),
-            error: xhr => alert('Failed to save roster: ' + xhr.responseText)
+            data: JSON.stringify(roster),
+            success: () => {
+                alert('✅ Roster saved successfully!');
+                loadDefaultRoster(); // reload after save to show DB data
+            },
+            error: xhr => {
+                alert('❌ Failed to save roster: ' + xhr.responseText);
+                console.error(xhr.responseText);
+            }
         });
     });
+
 
     // ==========================
     // TOGGLE LEAVE

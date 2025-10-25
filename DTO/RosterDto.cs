@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using ShiftPlanner.Models;
 
-namespace ShiftPlanner.Models
+namespace ShiftPlanner.DTO
 {
-    public class Roster
+    public class RosterDto
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RosterId { get; set; }
         public DateTime WeekStart { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public string DeletedBy { get; set; } = string.Empty;
@@ -14,6 +12,6 @@ namespace ShiftPlanner.Models
         public DateTime? DeletedAt { get; set; }
         public bool IsDeleted { get; set; } = false;
 
-        public List<RosterEntry> Entries { get; set; } = new();
+        public List<RosterEntryDto> Entries { get; set; } = new();
     }
 }

@@ -38,44 +38,77 @@ namespace ShiftPlanner.Repositary
         // =============================
         // Save or Update Roster
         // =============================
-        public async Task<bool> SaveOrUpdateRosterAsync(Roster roster)
+        public async Task<bool> SaveOrUpdateRosterAsync(RosterDto dto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Check if a roster already exists for this week
                 var existing = await _context.Rosters
                     .Include(r => r.Entries)
-                    .FirstOrDefaultAsync(r => r.WeekStart.Date == roster.WeekStart.Date && !r.IsDeleted);
+                    .FirstOrDefaultAsync(r => r.WeekStart.Date == dto.WeekStart.Date && !r.IsDeleted);
 
                 if (existing != null)
                 {
-                    // Soft delete old entries
-                    foreach (var e in existing.Entries)
-                    {
-                        e.IsDeleted = true;
-                        e.DeletedAt = DateTime.UtcNow;
-                    }
-
+                    // --- UPDATE EXISTING ROSTER ---
                     existing.UpdatedAt = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
+                    existing.CreatedBy = dto.CreatedBy;
+                    existing.DeletedBy = dto.DeletedBy;
+                    existing.IsDeleted = dto.IsDeleted;
 
-                    roster.RosterId = existing.RosterId;
+                    // Remove old entries completely (you could also soft-delete instead)
+                    _context.RosterEntries.RemoveRange(existing.Entries);
+
+                    // Add new entries (map manually)
+                    foreach (var entryDto in dto.Entries)
+                    {
+                        var newEntry = new RosterEntry
+                        {
+                            StaffId = entryDto.StaffId,
+                            DayName = entryDto.DayName,
+                            FromTime = entryDto.FromTime,
+                            ToTime = entryDto.ToTime,
+                            IsLeave = entryDto.IsLeave,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        existing.Entries.Add(newEntry);
+                    }
                 }
                 else
                 {
-                    _context.Rosters.Add(roster);
-                    await _context.SaveChangesAsync();
+                    // --- CREATE NEW ROSTER ---
+                    var newRoster = new Roster
+                    {
+                        WeekStart = dto.WeekStart,
+                        CreatedBy = dto.CreatedBy,
+                        DeletedBy = dto.DeletedBy,
+                        CreatedAt = DateTime.UtcNow,
+                        IsDeleted = dto.IsDeleted,
+                        Entries = new List<RosterEntry>()
+                    };
+
+                    // Map entries
+                    foreach (var entryDto in dto.Entries)
+                    {
+                        var newEntry = new RosterEntry
+                        {
+                            StaffId = entryDto.StaffId,
+                            DayName = entryDto.DayName,
+                            FromTime = entryDto.FromTime,
+                            ToTime = entryDto.ToTime,
+                            IsLeave = entryDto.IsLeave,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        newRoster.Entries.Add(newEntry);
+                    }
+
+                    _context.Rosters.Add(newRoster);
                 }
 
-                // Add new entries
-                foreach (var entry in roster.Entries)
-                {
-                    entry.RosterId = roster.RosterId;
-                    _context.RosterEntries.Add(entry);
-                }
-
+                // Save all changes
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
                 return true;
             }
             catch (Exception ex)
@@ -85,6 +118,7 @@ namespace ShiftPlanner.Repositary
                 return false;
             }
         }
+
 
         public async Task<Roster?> GetRosterByWeekAsync(DateTime weekStart)
         {

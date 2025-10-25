@@ -5,6 +5,7 @@ using ShiftPlanner.Models;
 using ShiftPlanner.Repositary;
 using ClosedXML.Excel;
 using System.Text;
+using ShiftPlanner.DTO;
 
 namespace ShiftPlanner.Controllers
 {
@@ -69,9 +70,31 @@ namespace ShiftPlanner.Controllers
         // ----------------------------
         //  API: Suggest automatic roster
         // ----------------------------
-        [HttpGet("api/roster/suggestion")]
-        public IActionResult GetRosterSuggestion()
+        [HttpGet("api/roster/load")]
+        public async Task<IActionResult> GetRosterOrSuggestion([FromQuery] DateTime? weekStart)
         {
+            var startOfWeek = weekStart ?? DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+
+            var existingRoster = await _shiftRepository.GetRosterByWeekAsync(startOfWeek);
+
+            if (existingRoster != null && existingRoster.Entries.Any())
+            {
+                return Ok(new
+                {
+                    type = "saved",
+                    weekStart = existingRoster.WeekStart,
+                    entries = existingRoster.Entries.Select(e => new
+                    {
+                        day = e.DayName,
+                        staffId = e.StaffId,
+                        from = e.FromTime?.ToString(@"hh\:mm") ?? "",
+                        to = e.ToTime?.ToString(@"hh\:mm") ?? "",
+                        isLeave = e.IsLeave
+                    })
+                });
+            }
+
+            // Fallback to suggested defaults
             var days = _template.Select(t => new
             {
                 day = t.Day,
@@ -90,18 +113,21 @@ namespace ShiftPlanner.Controllers
 
             return Ok(new
             {
+                type = "suggested",
                 days,
                 permanentLeave
             });
         }
 
+
+
         [HttpPost("api/roster/save")]
-        public async Task<IActionResult> Save([FromBody] Roster roster)
+        public async Task<IActionResult> Save([FromBody] RosterDto dto)
         {
-            if (roster == null || roster.Entries.Count == 0)
+            if (dto == null || dto.Entries.Count == 0)
                 return BadRequest("Invalid roster data.");
 
-            var success = await _shiftRepository.SaveOrUpdateRosterAsync(roster);
+            var success = await _shiftRepository.SaveOrUpdateRosterAsync(dto);
             if (success)
                 return Ok(new { message = "Roster saved successfully." });
             else

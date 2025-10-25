@@ -1,11 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace ShiftPlanner.Models
+﻿namespace ShiftPlanner.DTO
 {
-    public class RosterEntry
+    public class RosterEntryDto
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RosterEntryId { get; set; }
         public int RosterId { get; set; }
         public int StaffId { get; set; }
         public string DayName { get; set; } = string.Empty;
