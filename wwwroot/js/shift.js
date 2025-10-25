@@ -77,9 +77,8 @@
                     entriesByDay[e.day].push(e);
                 });
 
-                console.log(entriesByDay)
                 $tbody.find('tr').each(function () {
-                    const day = $(this).find('td:first small.text-muted').text().trim();
+                    const day = $(this).find('td:first').clone().children().remove().end().text().trim();
                     const entries = entriesByDay[day] || [];
 
                     staffList.forEach(s => {
@@ -185,7 +184,7 @@
 
         const entries = [];
         $('#rosterTable tbody tr').each(function () {
-            const dayName = $(this).find('td:first small.text-muted').text().trim();;
+            const dayName = $(this).find('td:first').clone().children().remove().end().text().trim();
 
             $(this).find('td:gt(0)').each(function (i) {
                 const from = $(this).find('.from-time').val();
