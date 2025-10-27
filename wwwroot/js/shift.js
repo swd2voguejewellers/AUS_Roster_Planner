@@ -219,14 +219,13 @@
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(roster),
-            success: () => {
-                alert('✅ Roster saved successfully!');
-                loadDefaultRoster(); // reload after save to show DB data
+            success: res => {
+                alert("✅ " + res);
             },
             error: xhr => {
-                alert('❌ Failed to save roster: ' + xhr.responseText);
-                console.error(xhr.responseText);
+                alert("⚠️ Validation failed:\n" + xhr.responseText);
             }
+
         });
     });
 

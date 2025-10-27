@@ -7,7 +7,7 @@ namespace ShiftPlanner.Interfaces
     public interface IShiftRepositary
     {
         Task<IEnumerable<StaffDto>> GetStaffAsync();
-        Task<bool> SaveOrUpdateRosterAsync(RosterDto dto);
+        Task<(bool IsValid, string Message)> SaveOrUpdateRosterAsync(RosterDto dto);
 
         Task<Roster?> GetRosterByWeekAsync(DateTime weekStart);
     }

@@ -127,11 +127,12 @@ namespace ShiftPlanner.Controllers
             if (dto == null || dto.Entries.Count == 0)
                 return BadRequest("Invalid roster data.");
 
-            var success = await _shiftRepository.SaveOrUpdateRosterAsync(dto);
-            if (success)
-                return Ok(new { message = "Roster saved successfully." });
-            else
-                return StatusCode(500, "Failed to save roster.");
+            var (isValid, message) = await _shiftRepository.SaveOrUpdateRosterAsync(dto);
+
+            if (!isValid)
+                return BadRequest(message);
+
+            return Ok("Roster saved successfully!");
         }
     }
 }
