@@ -40,3 +40,43 @@ body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
     }
 
 
+/* Make the entire table more grid-like */
+#rosterTable th,
+#rosterTable td {
+    border: 1px solid #dee2e6 !important;
+}
+
+/* Emphasize staff column divisions */
+#rosterTable thead th:not(:first-child),
+#rosterTable tbody td:not(:first-child) {
+    border-left: 3px solid #b5b5b5 !important;
+}
+
+    /* Slightly darker border between staff */
+    #rosterTable tbody td:not(:first-child):nth-child(odd) {
+        background-color: #fafafa;
+    }
+
+/* Optional: fix header background contrast */
+#rosterTable thead th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Round time inputs & space them neatly */
+#rosterTable input[type="time"] {
+    border-radius: 6px;
+    padding: 2px 4px;
+}
+
+/* Highlight weekends */
+#rosterTable tr.table-secondary td:first-child {
+    border-right: 3px solid #bbb !important;
+}
+
+#rosterTable tbody td:nth-child(even),
+#rosterTable thead th:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+

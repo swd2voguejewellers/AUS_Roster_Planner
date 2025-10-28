@@ -1,5 +1,62 @@
 ﻿$(document).ready(function () {
     // ==========================
+    // WEEK SELECTOR
+    // ==========================
+    const $weekSelect = $('#weekSelect');
+    initWeekSelector();
+
+    function initWeekSelector() {
+        const today = new Date();
+        const currentSunday = new Date(today.setDate(today.getDate() - today.getDay())); // Sunday-based
+        $weekSelect.empty();
+
+        // Generate 5 weeks: past 2, current, next 2
+        for (let offset = -2; offset <= 2; offset++) {
+            const sunday = new Date(currentSunday);
+            sunday.setDate(sunday.getDate() + offset * 7);
+            const saturday = new Date(sunday);
+            saturday.setDate(sunday.getDate() + 6);
+
+            const label = `${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${saturday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+            const value = sunday.toISOString().split('T')[0];
+
+            $weekSelect.append(`<option value="${value}">${label}</option>`);
+        }
+
+        // Default to current week (Sunday-based)
+        $weekSelect.val(currentSunday.toISOString().split('T')[0]);
+    }
+
+    // ==========================
+    // REBUILD TABLE BODY (Days)
+    // ==========================
+    function rebuildDaysForWeek(weekStartDate) {
+        const start = new Date(weekStartDate);
+        const $tbody = $('#rosterTable tbody');
+        $tbody.empty(); // clear existing rows
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + i);
+
+            const isWeekend = (date.getDay() === 0 || date.getDay() === 6); // Sunday or Saturday
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+            const shortDate = date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+
+            const row = `
+            <tr class="${isWeekend ? 'table-secondary' : ''}">
+                <td class="fw-bold bg-light">
+                    ${dayName}<br />
+                    <small class="text-muted">${shortDate}</small>
+                </td>
+            </tr>
+        `;
+            $tbody.append(row);
+        }
+    }
+
+
+    // ==========================
     // GLOBALS
     // ==========================
     const $table = $('#rosterTable');
@@ -29,8 +86,18 @@
         });
 
         buildHeader();
-        loadDefaultRoster();
+
+        const defaultWeek = $weekSelect.val();
+        rebuildDaysForWeek(defaultWeek);
+        loadDefaultRoster(defaultWeek);
     });
+
+    $weekSelect.on('change', function () {
+        const selectedWeek = $(this).val();
+        rebuildDaysForWeek(selectedWeek);  // update tbody days
+        loadDefaultRoster(selectedWeek);   // reload roster data
+    });
+
 
     // ==========================
     // BUILD HEADER
@@ -55,10 +122,8 @@
     // ==========================
     // LOAD DEFAULT ROSTER
     // ==========================
-    function loadDefaultRoster() {
-        const today = new Date();
-        const monday = new Date(today.setDate(today.getDate() - today.getDay())); // week start
-        const weekStart = monday.toISOString().split('T')[0];
+    function loadDefaultRoster(selectedWeekStart = null) {
+        const weekStart = selectedWeekStart || $('#weekSelect').val();
         const $tbody = $('#rosterTable tbody');
         const $thead = $('#rosterTable thead');
 
@@ -177,9 +242,7 @@
     $('#rosterForm').on('submit', function (e) {
         e.preventDefault();
 
-        const today = new Date();
-        const monday = new Date(today.setDate(today.getDate() - today.getDay())); // week start (Sunday = 0)
-        const weekStart = monday.toISOString(); // send full ISO string
+        const weekStart = $('#weekSelect').val(); // use selected week
         const createdBy = 'Manager'; // optional, set from your session or user context
 
         const entries = [];
