@@ -339,6 +339,14 @@
         setTimeout(updateSummary, 150);
     });
 
+    // ✅ Clear time inputs when pressing Delete / Backspace / Enter
+    $(document).on('keyup', '.from-time, .to-time', function (e) {
+        if (e.key === 'Delete') {
+            $(this).val('').trigger('change');
+        }
+    });
+
+
     // ==========================
     // UPDATE SUMMARY
     // ==========================

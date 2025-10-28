@@ -59,8 +59,8 @@ namespace ShiftPlanner.Repositary
                 var casuals = staffList.Where(s => s.IsPermanent == false).ToList();
                 var manager = staffList.FirstOrDefault(s => s.IsManager == true);
 
-                if (permanents.Count != 4 || casuals.Count != 2 || manager == null)
-                    return (false, "Staff configuration invalid: must have 4 permanent (incl. manager) and 2 casual staff.");
+                //if (permanents.Count != 4 || casuals.Count != 2 || manager == null)
+                    //return (false, "Staff configuration invalid: must have 4 permanent (incl. manager) and 2 casual staff.");
 
                 // Group entries by staff
                 var groupedByStaff = dto.Entries.GroupBy(e => e.StaffId);
@@ -84,7 +84,15 @@ namespace ShiftPlanner.Repositary
                         if (invalidWork)
                             return (false, $"Permanent staff {staff.FirstName} must have valid working hours or be on leave.");
                     }
+
+                    foreach (var entry in group.Where(e => !e.IsLeave))
+                    {
+                        if (entry.FromTime >= entry.ToTime)
+                            return (false, $"Time range invalid for {staff.FirstName} on {entry.DayName}: 'From' must be earlier than 'To'.");
+                    }
+
                 }
+
 
                 foreach (var day in ShiftTimeConfig.OpeningHours)
                 {
