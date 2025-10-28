@@ -1,7 +1,18 @@
-body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
-.card-title{font-size:1.05rem}
-.fw-medium{font-weight:600}
-.table-striped>tbody>tr.table-secondary>td{background:#f8f9fa}
+body {
+    font-family: Segoe UI, Helvetica, Arial, sans-serif;
+}
+
+.card-title {
+    font-size: 1.05rem;
+}
+
+.fw-medium {
+    font-weight: 600;
+}
+
+.table-striped > tbody > tr.table-secondary > td {
+    background: #f8f9fa;
+}
 
 .leave-cell {
     background-color: #f8d7da !important;
@@ -11,7 +22,7 @@ body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
 }
 
 .roster-scroll {
-    max-height: 500px; 
+    max-height: 500px;
     overflow-x: auto;
     overflow-y: auto;
     border: 1px solid #ddd;
@@ -22,9 +33,12 @@ body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
     position: sticky;
     top: 0;
     z-index: 2;
-    background-color: #f8f9fa; 
+    background-color: #f8f9fa;
+    vertical-align: middle;
+    text-align: center;
 }
 
+/* Scrollbar styling */
 .roster-scroll::-webkit-scrollbar {
     height: 10px;
     width: 10px;
@@ -39,31 +53,31 @@ body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
         background: #777;
     }
 
+/* ====== ROSTER TABLE STYLING ====== */
 
-/* Make the entire table more grid-like */
+/* Uniform light grid */
 #rosterTable th,
 #rosterTable td {
     border: 1px solid #dee2e6 !important;
 }
 
-/* Emphasize staff column divisions */
+/* ? Emphasize horizontal row separation */
+#rosterTable tbody tr {
+    border-bottom: 3px solid #b5b5b5 !important;
+}
+
+/* Remove the thick vertical staff dividers */
 #rosterTable thead th:not(:first-child),
 #rosterTable tbody td:not(:first-child) {
-    border-left: 3px solid #b5b5b5 !important;
+    border-left: 1px solid #dee2e6 !important;
 }
 
-    /* Slightly darker border between staff */
-    #rosterTable tbody td:not(:first-child):nth-child(odd) {
-        background-color: #fafafa;
-    }
-
-/* Optional: fix header background contrast */
-#rosterTable thead th {
-    vertical-align: middle;
-    text-align: center;
+/* Optional: alternate row shading for readability */
+#rosterTable tbody tr:nth-child(odd) {
+    background-color: #fafafa;
 }
 
-/* Round time inputs & space them neatly */
+/* Round time inputs neatly */
 #rosterTable input[type="time"] {
     border-radius: 6px;
     padding: 2px 4px;
@@ -74,9 +88,8 @@ body{font-family:Segoe UI,Helvetica,Arial, sans-serif}
     border-right: 3px solid #bbb !important;
 }
 
-#rosterTable tbody td:nth-child(even),
-#rosterTable thead th:nth-child(even) {
-    background-color: #f8f9fa;
+/* Optional: lighter header contrast */
+#rosterTable thead th {
+    background-color: #f1f3f5;
+    font-weight: 600;
 }
-
-

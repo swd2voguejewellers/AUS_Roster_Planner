@@ -76,7 +76,7 @@
     // ==========================
     // INITIAL LOAD
     // ==========================
-    $.get('/api/staff', function (staffs) {
+    $.get('/aus_roster/api/staff', function (staffs) {
         staffList = staffs.sort((a, b) => {
             if (a.isManager && !b.isManager) return -1;
             if (!a.isManager && b.isManager) return 1;
@@ -127,7 +127,7 @@
         const $tbody = $('#rosterTable tbody');
         const $thead = $('#rosterTable thead');
 
-        $.get(`/api/roster/load?weekStart=${weekStart}`, function (res) {
+        $.get(`/aus_roster/api/roster/load?weekStart=${weekStart}`, function (res) {
             $tbody.find('tr').each(function () {
                 $(this).find('td:gt(0)').remove(); // clear all except first column
             });
@@ -196,8 +196,7 @@
                         const fromTime = rosterDefaults[day]?.from || '';
                         const toTime = rosterDefaults[day]?.to || '';
                         const totalHours = rosterDefaults[day]?.hours || 0;
-                        const disableCasual = role === 'Casual' && totalHours !== 12;
-                        const disabledAttr = disableCasual ? 'disabled' : '';
+                        const disableCasual = role === 'Casual';
                         const fromVal = disableCasual ? '' : fromTime;
                         const toVal = disableCasual ? '' : toTime;
 
@@ -211,10 +210,10 @@
                             <div class="input-group input-group-sm shadow-sm"
                                  style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                                 <input type="time" class="form-control text-center from-time"
-                                       value="${fromVal}" style="border: none; min-width: 95px;" ${disabledAttr}>
+                                       value="${fromVal}" style="border: none; min-width: 95px;">
                                 <span class="input-group-text bg-light border-start border-end">to</span>
                                 <input type="time" class="form-control text-center to-time"
-                                       value="${toVal}" style="border: none; min-width: 95px;" ${disabledAttr}>
+                                       value="${toVal}" style="border: none; min-width: 95px;">
                             </div>
                         `);
                         }
@@ -278,7 +277,7 @@
         };
 
         $.ajax({
-            url: '/api/roster/save',
+            url: '/aus_roster/api/roster/save',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(roster),
@@ -307,12 +306,16 @@
             ? 'Manager'
             : (headerText.includes('Permanent') ? 'Permanent' : 'Casual');
 
+        if (role === 'Casual') {
+            return; // do nothing
+        }
+
+
         if ($badge.length) {
             const fromTime = rosterDefaults[day]?.from || '';
             const toTime = rosterDefaults[day]?.to || '';
             const totalHours = rosterDefaults[day]?.hours || 0;
-            const disableCasual = role === 'Casual' && totalHours !== 12;
-            const disabledAttr = disableCasual ? 'disabled' : '';
+            const disableCasual = role === 'Casual';
             const fromVal = disableCasual ? '' : fromTime;
             const toVal = disableCasual ? '' : toTime;
 
@@ -320,10 +323,10 @@
                 <div class="input-group input-group-sm shadow-sm"
                      style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                     <input type="time" class="form-control text-center from-time"
-                           value="${fromVal}" style="border: none; min-width: 95px;" ${disabledAttr}>
+                           value="${fromVal}" style="border: none; min-width: 95px;">
                     <span class="input-group-text bg-light border-start border-end">to</span>
                     <input type="time" class="form-control text-center to-time"
-                           value="${toVal}" style="border: none; min-width: 95px;" ${disabledAttr}>
+                           value="${toVal}" style="border: none; min-width: 95px;">
                 </div>
             `);
 
