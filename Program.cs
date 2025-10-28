@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using ShiftPlanner;
 using ShiftPlanner.Interfaces;
 using ShiftPlanner.Repositary;
