@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShiftPlanner.DTO;
+using ShiftPlanner.Helpers;
 using ShiftPlanner.Interfaces;
 using ShiftPlanner.Models;
 
@@ -85,28 +86,16 @@ namespace ShiftPlanner.Repositary
                     }
                 }
 
-                // 2️⃣ Ensure at least 2 permanents at opening & closing
-                var openCloseTimes = new Dictionary<string, (TimeSpan open, TimeSpan close)>
-                {
-                    ["Sunday"] = (TimeSpan.Parse("10:00"), TimeSpan.Parse("17:00")),
-                    ["Monday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:30")),
-                    ["Tuesday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:30")),
-                    ["Wednesday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:30")),
-                    ["Thursday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("21:00")),
-                    ["Friday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("21:00")),
-                    ["Saturday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:00"))
-                };
-
-                foreach (var day in openCloseTimes)
+                foreach (var day in ShiftTimeConfig.OpeningHours)
                 {
                     var dayEntries = dto.Entries.Where(e => e.DayName == day.Key && !e.IsLeave).ToList();
 
                     int openCount = dayEntries.Count(e =>
-                        e.FromTime <= day.Value.open && e.ToTime >= day.Value.open &&
+                        e.FromTime <= day.Value.Open && e.ToTime >= day.Value.Open &&
                         staffList.First(s => s.EmployeeID == e.StaffId.ToString()).IsPermanent == true);
 
                     int closeCount = dayEntries.Count(e =>
-                        e.FromTime <= day.Value.close && e.ToTime >= day.Value.close &&
+                        e.FromTime <= day.Value.Close && e.ToTime >= day.Value.Close &&
                         staffList.First(s => s.EmployeeID == e.StaffId.ToString()).IsPermanent == true);
 
                     if (openCount < 2 || closeCount < 2)

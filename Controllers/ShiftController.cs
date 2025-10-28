@@ -6,6 +6,7 @@ using ShiftPlanner.Repositary;
 using ClosedXML.Excel;
 using System.Text;
 using ShiftPlanner.DTO;
+using ShiftPlanner.Helpers;
 
 namespace ShiftPlanner.Controllers
 {
@@ -42,7 +43,7 @@ namespace ShiftPlanner.Controllers
         {
             var vm = new WeekShiftViewModel
             {
-                Slots = _template.Select(t => new ShiftSlot
+                Slots = ShiftTimeConfig.Template.Select(t => new ShiftSlot
                 {
                     Day = t.Day,
                     TimeRange = $"{t.From}-{t.To}",
@@ -52,20 +53,6 @@ namespace ShiftPlanner.Controllers
 
             return View(vm);
         }
-
-        // ----------------------------
-        //  Template of default hours
-        // ----------------------------
-        private static readonly List<(string Day, string From, string To, double Hours)> _template = new()
-        {
-            ("Sunday",    "10:00", "17:00", 7.0),
-            ("Monday",    "09:00", "17:30", 8.5),
-            ("Tuesday",   "09:00", "17:30", 8.5),
-            ("Wednesday", "09:00", "17:30", 8.5),
-            ("Thursday",  "09:00", "21:00", 12.0),
-            ("Friday",    "09:00", "21:00", 12.0),
-            ("Saturday",  "09:00", "17:00", 8.0)
-        };
 
         // ----------------------------
         //  API: Suggest automatic roster
@@ -95,7 +82,7 @@ namespace ShiftPlanner.Controllers
             }
 
             // Fallback to suggested defaults
-            var days = _template.Select(t => new
+            var days = ShiftTimeConfig.Template.Select(t => new
             {
                 day = t.Day,
                 timeRange = $"{t.From}-{t.To}",
