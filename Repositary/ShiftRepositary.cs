@@ -24,8 +24,12 @@ namespace ShiftPlanner.Repositary
                     {
                         EmployeeID = s.EmployeeID,
                         FirstName = s.FirstName,
-                        IsPermanent = s.IsPermanent,
-                        IsManager = s.IsManager
+
+                        // Rule: Permanent if employee no < 5000
+                        IsPermanent = Convert.ToInt32(s.EmployeeID) < 5000,
+
+                        // Rule: Manager if Category == "Manager"
+                        IsManager = s.Category == "Manager"
                     })
                     .ToListAsync();
             }
@@ -35,6 +39,7 @@ namespace ShiftPlanner.Repositary
                 return Enumerable.Empty<StaffDto>();
             }
         }
+
 
         // =============================
         // Save or Update Roster
@@ -52,8 +57,8 @@ namespace ShiftPlanner.Repositary
                 {
                     EmployeeID = s.EmployeeID,
                     FirstName = s.FirstName,
-                    IsPermanent = (s.IsPermanent ?? false),
-                    IsManager = (s.IsManager ?? false)
+                    IsPermanent = (s.EmployeeID < 5000),
+                    IsManager = (s.Category == "Manager")
                 }).ToListAsync();
                 var permanents = staffList.Where(s => s.IsPermanent == true).ToList();
                 var casuals = staffList.Where(s => s.IsPermanent == false).ToList();
@@ -68,7 +73,7 @@ namespace ShiftPlanner.Repositary
                 // 1️⃣ Validate permanent staff leave days
                 foreach (var group in groupedByStaff)
                 {
-                    var staff = staffList.FirstOrDefault(s => s.EmployeeID == group.Key.ToString());
+                    var staff = staffList.FirstOrDefault(s => s.EmployeeID == group.Key);
                     if (staff == null) continue;
 
                     if (staff.IsPermanent == true)
@@ -87,7 +92,7 @@ namespace ShiftPlanner.Repositary
 
                     foreach (var entry in group.Where(e => !e.IsLeave))
                     {
-                        if (entry.FromTime >= entry.ToTime)
+                           if (entry.FromTime >= entry.ToTime)
                             return (false, $"Time range invalid for {staff.FirstName} on {entry.DayName}: 'From' must be earlier than 'To'.");
                     }
 
@@ -100,11 +105,11 @@ namespace ShiftPlanner.Repositary
 
                     int openCount = dayEntries.Count(e =>
                         e.FromTime <= day.Value.Open && e.ToTime >= day.Value.Open &&
-                        staffList.First(s => s.EmployeeID == e.StaffId.ToString()).IsPermanent == true);
+                        staffList.First(s => s.EmployeeID == e.StaffId).IsPermanent == true);
 
                     int closeCount = dayEntries.Count(e =>
                         e.FromTime <= day.Value.Close && e.ToTime >= day.Value.Close &&
-                        staffList.First(s => s.EmployeeID == e.StaffId.ToString()).IsPermanent == true);
+                        staffList.First(s => s.EmployeeID == e.StaffId).IsPermanent == true);
 
                     if (openCount < 2 || closeCount < 2)
                         return (false, $"On {day.Key}, at least 2 permanent staff must be present at opening and closing.");
@@ -112,7 +117,7 @@ namespace ShiftPlanner.Repositary
 
                 // 3️⃣ Validate total weekly hours
                 var totalPermanentHours = groupedByStaff
-                    .Where(g => staffList.First(s => s.EmployeeID == g.Key.ToString()).IsPermanent == true)
+                    .Where(g => staffList.First(s => s.EmployeeID == g.Key).IsPermanent == true)
                     .Sum(g => g.Where(e => !e.IsLeave && e.FromTime != null && e.ToTime != null)
                                .Sum(e => (e.ToTime.Value - e.FromTime.Value).TotalHours));
 
@@ -143,6 +148,7 @@ namespace ShiftPlanner.Repositary
                         {
                             StaffId = entryDto.StaffId,
                             DayName = entryDto.DayName,
+                            RosterDate = GetRosterDate(dto.WeekStart, entryDto.DayName),
                             FromTime = entryDto.FromTime,
                             ToTime = entryDto.ToTime,
                             IsLeave = entryDto.IsLeave,
@@ -163,6 +169,7 @@ namespace ShiftPlanner.Repositary
                         {
                             StaffId = e.StaffId,
                             DayName = e.DayName,
+                            RosterDate = GetRosterDate(dto.WeekStart, e.DayName),
                             FromTime = e.FromTime,
                             ToTime = e.ToTime,
                             IsLeave = e.IsLeave,
@@ -203,5 +210,13 @@ namespace ShiftPlanner.Repositary
             }
         }
 
+        public static DateTime GetRosterDate(DateTime weekStart, string dayName)
+        {
+            if (!Enum.TryParse(dayName, true, out DayOfWeek targetDay))
+                throw new ArgumentException("Invalid day name");
+
+            int diff = ((int)targetDay - (int)DayOfWeek.Sunday + 7) % 7;
+            return weekStart.AddDays(diff);
+        }
     }
 }

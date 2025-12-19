@@ -5,6 +5,7 @@
         public int RosterId { get; set; }
         public int StaffId { get; set; }
         public string DayName { get; set; } = string.Empty;
+        public DateTime RosterDate { get; set; }
         public TimeSpan? FromTime { get; set; }
         public TimeSpan? ToTime { get; set; }
         public bool IsLeave { get; set; }
