@@ -2,11 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftPlanner.ViewModels;
 using ShiftPlanner.Interfaces;
 using ShiftPlanner.Models;
-using ShiftPlanner.Repositary;
-using ClosedXML.Excel;
-using System.Text;
 using ShiftPlanner.DTO;
 using ShiftPlanner.Helpers;
+using System.Globalization;
 
 namespace ShiftPlanner.Controllers
 {
@@ -90,13 +88,22 @@ namespace ShiftPlanner.Controllers
                 needCasuals = t.Hours >= 12
             }).ToList();
 
-            var permanentLeave = new Dictionary<string, string[]>
+            var permanentStaff = await _shiftRepository.GetPermanentStaffAsync();
+
+            var leavePatterns = new List<string[]>
             {
-                { "Tami",    new[] { "Wednesday", "Sunday" } },
-                { "Pathirage", new[] { "Monday", "Thursday" } },
-                { "Kalani", new[] { "Tuesday", "Friday" } },
-                { "Nimesha", new[] { "Saturday", "Sunday" } }
+                new[] { "Saturday", "Monday" },
+                new[] { "Wednesday", "Sunday" },
+                new[] { "Monday", "Thursday" },
+                new[] { "Tuesday", "Friday" }
             };
+
+            int weekSeed = ISOWeek.GetWeekOfYear(startOfWeek);
+
+            var permanentLeave = permanentStaff.ToDictionary(
+                s => s.FirstName,
+                s => leavePatterns[(s.EmployeeID + weekSeed) % leavePatterns.Count]
+            );
 
             return Ok(new
             {

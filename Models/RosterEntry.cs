@@ -2,6 +2,7 @@
 
 namespace ShiftPlanner.Models
 {
+    [Table("Staff_Aus_RosterEntries")]
     public class RosterEntry
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

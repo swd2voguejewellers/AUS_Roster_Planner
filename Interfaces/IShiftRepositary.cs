@@ -10,5 +10,6 @@ namespace ShiftPlanner.Interfaces
         Task<(bool IsValid, string Message)> SaveOrUpdateRosterAsync(RosterDto dto);
 
         Task<Roster?> GetRosterByWeekAsync(DateTime weekStart);
+        Task<List<Staff>> GetPermanentStaffAsync();
     }
 }

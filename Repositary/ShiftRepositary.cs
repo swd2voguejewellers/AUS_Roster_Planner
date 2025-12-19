@@ -20,6 +20,7 @@ namespace ShiftPlanner.Repositary
             try
             {
                 return await _context.Staff
+                    .Where(s => s.Status == "1")
                     .Select(s => new StaffDto
                     {
                         EmployeeID = s.EmployeeID,
@@ -121,7 +122,10 @@ namespace ShiftPlanner.Repositary
                     .Sum(g => g.Where(e => !e.IsLeave && e.FromTime != null && e.ToTime != null)
                                .Sum(e => (e.ToTime.Value - e.FromTime.Value).TotalHours));
 
-                if (totalPermanentHours < 4 * 40) // 4 permanent staff * 40 hrs each
+                int permanentStaffCount = staffList.Count(s => s.IsPermanent == true);
+
+
+                if (totalPermanentHours < permanentStaffCount * 40) // 4 permanent staff * 40 hrs each
                     return (false, "Total permanent staff hours less than required (40h per staff).");
 
                 // -----------------------------
@@ -210,7 +214,14 @@ namespace ShiftPlanner.Repositary
             }
         }
 
-        public static DateTime GetRosterDate(DateTime weekStart, string dayName)
+        public async Task<List<Staff>> GetPermanentStaffAsync()
+        {
+            return await _context.Staff
+                .Where(s => s.EmployeeID < 5000 && s.Status == "1")
+                .ToListAsync();
+        }
+
+        private static DateTime GetRosterDate(DateTime weekStart, string dayName)
         {
             if (!Enum.TryParse(dayName, true, out DayOfWeek targetDay))
                 throw new ArgumentException("Invalid day name");
