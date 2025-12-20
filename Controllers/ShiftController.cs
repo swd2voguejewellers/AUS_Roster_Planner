@@ -101,7 +101,7 @@ namespace ShiftPlanner.Controllers
             int weekSeed = ISOWeek.GetWeekOfYear(startOfWeek);
 
             var permanentLeave = permanentStaff.ToDictionary(
-                s => s.FirstName,
+                s => s.NickName,
                 s => leavePatterns[(s.EmployeeID + weekSeed) % leavePatterns.Count]
             );
 

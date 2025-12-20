@@ -24,7 +24,7 @@ namespace ShiftPlanner.Repositary
                     .Select(s => new StaffDto
                     {
                         EmployeeID = s.EmployeeID,
-                        FirstName = s.FirstName,
+                        FirstName = s.NickName,
 
                         // Rule: Permanent if employee no < 5000
                         IsPermanent = Convert.ToInt32(s.EmployeeID) < 5000,
@@ -57,7 +57,7 @@ namespace ShiftPlanner.Repositary
                 var staffList = await _context.Staff.Select(s => new StaffDto
                 {
                     EmployeeID = s.EmployeeID,
-                    FirstName = s.FirstName,
+                    FirstName = s.NickName,
                     IsPermanent = (s.EmployeeID < 5000),
                     IsManager = (s.Category == "Manager")
                 }).ToListAsync();
