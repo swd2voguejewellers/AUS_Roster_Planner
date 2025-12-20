@@ -74,7 +74,8 @@ namespace ShiftPlanner.Controllers
                         staffId = e.StaffId,
                         from = e.FromTime?.ToString(@"hh\:mm") ?? "",
                         to = e.ToTime?.ToString(@"hh\:mm") ?? "",
-                        isLeave = e.IsLeave
+                        isLeave = e.IsLeave,
+                        leaveType = e.LeaveType 
                     })
                 });
             }

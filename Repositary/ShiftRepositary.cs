@@ -156,6 +156,7 @@ namespace ShiftPlanner.Repositary
                             FromTime = entryDto.FromTime,
                             ToTime = entryDto.ToTime,
                             IsLeave = entryDto.IsLeave,
+                            LeaveType = entryDto.LeaveType,
                             CreatedAt = DateTime.UtcNow
                         });
                     }
@@ -177,6 +178,7 @@ namespace ShiftPlanner.Repositary
                             FromTime = e.FromTime,
                             ToTime = e.ToTime,
                             IsLeave = e.IsLeave,
+                            LeaveType = e.LeaveType,
                             CreatedAt = DateTime.UtcNow
                         }).ToList()
                     };

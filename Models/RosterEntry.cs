@@ -14,6 +14,7 @@ namespace ShiftPlanner.Models
         public TimeSpan? FromTime { get; set; }
         public TimeSpan? ToTime { get; set; }
         public bool IsLeave { get; set; }
+        public string LeaveType { get; set; } =string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }

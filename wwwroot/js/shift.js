@@ -156,7 +156,11 @@
                             .css('background-color', isLeave ? '#f8d7da' : color + '22');
 
                         if (isLeave) {
-                            $cell.html('<span class="badge bg-danger w-100">Leave</span>');
+                            $cell.html(`
+                                        <input type="text" class="form-control text-center leave-text"
+                                               value="${entry?.leaveType || 'RDO'}"
+                                               style="background-color:#dc3545; color:white; border:none; font-weight:bold;">
+                                    `);
                         } else {
                             $cell.append(`
                             <div class="input-group input-group-sm shadow-sm"
@@ -204,7 +208,13 @@
                             .css('background-color', isLeave ? '#f8d7da' : color + '22');
 
                         if (isLeave) {
-                            $cell.html('<span class="badge bg-danger w-100">Leave</span>');
+                            $cell.html(`
+                                        <input type="text"
+                                               class="form-control form-control-sm leave-text text-center"
+                                               placeholder="Leave"
+                                               value="RDO" style="background-color:#dc3545; color:white; border:none; font-weight:bold;">
+                                    `);
+
                         } else {
                             $cell.append(`
                             <div class="input-group input-group-sm shadow-sm"
@@ -251,7 +261,9 @@
             $(this).find('td:gt(0)').each(function (i) {
                 const from = $(this).find('.from-time').val();
                 const to = $(this).find('.to-time').val();
-                const isLeave = $(this).find('.badge.bg-danger').length > 0;
+                const leaveText = $(this).find('.leave-text').val()?.trim() || null;
+                const isLeave = !!leaveText;
+
 
                 const staff = staffList[i]; // assumes staffList is in the same order as table columns
                 if (!staff) return;
@@ -263,7 +275,8 @@
                     fromTime: from || null,
                     toTime: to || null,
                     isLeave,
-                    isDeleted: false
+                    isDeleted: false,
+                    leaveType: leaveText
                 });
             });
         });
@@ -296,48 +309,58 @@
     // TOGGLE LEAVE
     // ==========================
     $(document).on('dblclick', '#rosterTable td:not(:first-child)', function () {
-        const $badge = $(this).find('.badge.bg-danger');
-        const $row = $(this).closest('tr');
-        const day = $row.find('td:first').clone().children().remove().end().text().trim();
-        const colIndex = $(this).index() - 1;
-        const headerCell = $('#rosterTable thead th').eq(colIndex + 1);
-        const headerText = headerCell.text().trim();
-        const role = headerText.includes('Manager')
-            ? 'Manager'
-            : (headerText.includes('Permanent') ? 'Permanent' : 'Casual');
+        const $cell = $(this);
+        const $row = $cell.closest('tr');
+        const colIndex = $cell.index() - 1;
+        const staff = staffList[colIndex];
+        const role = staff.isManager ? 'Manager' : (staff.isPermanent ? 'Permanent' : 'Casual');
 
-        if (role === 'Casual') {
-            return; // do nothing
-        }
+        if (role === 'Casual') return; // optional: casuals cannot toggle leave
 
+        const isLeaveCell = $cell.find('input.leave-text').length > 0 || $cell.css('background-color') === 'rgb(220, 53, 69)'; // red
 
-        if ($badge.length) {
+        if (isLeaveCell) {
+            // Toggle to normal from-to inputs
+            const day = $row.find('td:first').clone().children().remove().end().text().trim();
             const fromTime = rosterDefaults[day]?.from || '';
             const toTime = rosterDefaults[day]?.to || '';
-            const totalHours = rosterDefaults[day]?.hours || 0;
-            const disableCasual = role === 'Casual';
-            const fromVal = disableCasual ? '' : fromTime;
-            const toVal = disableCasual ? '' : toTime;
 
-            $badge.parent().empty().append(`
-                <div class="input-group input-group-sm shadow-sm"
-                     style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-                    <input type="time" class="form-control text-center from-time"
-                           value="${fromVal}" style="border: none; min-width: 95px;">
-                    <span class="input-group-text bg-light border-start border-end">to</span>
-                    <input type="time" class="form-control text-center to-time"
-                           value="${toVal}" style="border: none; min-width: 95px;">
-                </div>
-            `);
+            $cell.html(`
+            <div class="input-group input-group-sm shadow-sm"
+                 style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                <input type="time" class="form-control text-center from-time"
+                       value="${fromTime}" style="border: none; min-width: 95px;">
+                <span class="input-group-text bg-light border-start border-end">to</span>
+                <input type="time" class="form-control text-center to-time"
+                       value="${toTime}" style="border: none; min-width: 95px;">
+            </div>
+        `);
 
-            $(this).css('background-color', COLORS[role] + '22');
+            // Set cell background according to role
+            let bgColor = COLORS[role] + '22'; // slightly transparent
+            $cell.css({ 'background-color': bgColor, color: 'black' });
+
         } else {
-            $(this).empty().append('<span class="badge bg-danger w-100">Leave</span>');
-            $(this).css('background-color', '#f8d7da');
+            // Toggle to editable leave input
+            const currentVal = 'RDO';
+
+            $cell.css({ 'background-color': '#f8d7da'});
+
+            $cell.html(`
+            <input type="text" class="form-control text-center leave-text"
+                   value="${currentVal}"
+                   style="background-color:#dc3545; color:white; border:none; font-weight:bold;">
+        `);
+
+            const $input = $cell.find('input.leave-text');
+            $input.focus().select();
         }
 
         setTimeout(updateSummary, 150);
     });
+
+
+
 
     // ✅ Clear time inputs when pressing Delete / Backspace / Enter
     $(document).on('keyup', '.from-time, .to-time', function (e) {
@@ -366,7 +389,7 @@
             $(this).find('td:gt(0)').each(function (i) {
                 const s = summary[i];
                 if (!s) return;
-                const isLeave = $(this).find('.badge.bg-danger').length > 0;
+                const isLeave = $(this).find('.leave-text').length > 0;
 
                 if (isLeave) {
                     s.leaveDays++;
@@ -398,4 +421,20 @@
             `);
         });
     }
+
+    $(document).on('input', '.leave-text', function () {
+        const hasText = $(this).val().trim().length > 0;
+        const $cell = $(this).closest('td');
+
+        if (hasText) {
+            $cell.find('.from-time, .to-time').val('');
+            $cell.find('.input-group').hide();
+            $cell.css('background-color', '#f8d7da');
+        } else {
+            $cell.find('.input-group').show();
+        }
+
+        updateSummary();
+    });
+
 });
