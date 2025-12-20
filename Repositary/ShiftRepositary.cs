@@ -112,8 +112,8 @@ namespace ShiftPlanner.Repositary
                         e.FromTime <= day.Value.Close && e.ToTime >= day.Value.Close &&
                         staffList.First(s => s.EmployeeID == e.StaffId).IsPermanent == true);
 
-                    if (openCount < 2 || closeCount < 2)
-                        return (false, $"On {day.Key}, at least 2 permanent staff must be present at opening and closing.");
+                    //if (openCount < 1 || closeCount < 1)
+                        //return (false, $"On {day.Key}, at least 2 permanent staff must be present at opening and closing.");
                 }
 
                 // 3️⃣ Validate total weekly hours
@@ -228,7 +228,7 @@ namespace ShiftPlanner.Repositary
             if (!Enum.TryParse(dayName, true, out DayOfWeek targetDay))
                 throw new ArgumentException("Invalid day name");
 
-            int diff = ((int)targetDay - (int)DayOfWeek.Sunday + 7) % 7;
+            int diff = ((int)targetDay - (int)DayOfWeek.Monday + 7) % 7;
             return weekStart.AddDays(diff);
         }
     }

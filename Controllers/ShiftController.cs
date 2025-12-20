@@ -5,6 +5,7 @@ using ShiftPlanner.Models;
 using ShiftPlanner.DTO;
 using ShiftPlanner.Helpers;
 using System.Globalization;
+using ShiftPlanner.Repositary;
 
 namespace ShiftPlanner.Controllers
 {
@@ -129,5 +130,26 @@ namespace ShiftPlanner.Controllers
 
             return Ok("Roster saved successfully!");
         }
+
+        [HttpPost("api/roster/excel")]
+        public async Task<IActionResult> OnGetExportRosterAsync(DateTime weekStart)
+        {
+            var roster = await _shiftRepository.GetRosterByWeekAsync(weekStart);
+            if (roster == null) return NotFound();
+
+            var fileBytes = ExcelExportHelper.ExportRosterToExcel(roster);
+
+            // Format weekStart for filename (avoid / and :)
+            string weekText = weekStart.ToString("yyyy-MM-dd");
+            string fileName = $"Roster_{weekText}.xlsx";
+
+            return File(
+                fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName
+            );
+        }
+
+
     }
 }

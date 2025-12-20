@@ -7,7 +7,9 @@
 
     function initWeekSelector() {
         const today = new Date();
-        const currentSunday = new Date(today.setDate(today.getDate() - today.getDay())); // Sunday-based
+        const currentSunday = new Date(today);
+        currentSunday.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday-based
+
         $weekSelect.empty();
 
         // Generate 5 weeks: past 2, current, next 2
@@ -76,7 +78,7 @@
     // ==========================
     // INITIAL LOAD
     // ==========================
-    $.get('/api/staff', function (staffs) {
+    $.get('/aus_roster/api/staff', function (staffs) {
         staffList = staffs.sort((a, b) => {
             if (a.isManager && !b.isManager) return -1;
             if (!a.isManager && b.isManager) return 1;
@@ -127,7 +129,7 @@
         const $tbody = $('#rosterTable tbody');
         const $thead = $('#rosterTable thead');
 
-        $.get(`/api/roster/load?weekStart=${weekStart}`, function (res) {
+        $.get(`/aus_roster/api/roster/load?weekStart=${weekStart}`, function (res) {
             $tbody.find('tr').each(function () {
                 $(this).find('td:gt(0)').remove(); // clear all except first column
             });
@@ -290,7 +292,7 @@
         };
 
         $.ajax({
-            url: '/api/roster/save',
+            url: '/aus_roster/api/roster/save',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(roster),
@@ -437,4 +439,37 @@
         updateSummary();
     });
 
+    $('#exportExcelLink').on('click', function (e) {
+        e.preventDefault();
+
+        // Example: get weekStart from a hidden field or JS variable
+        // Replace with your actual logic to get the weekStart value
+        var weekStart = $('#weekSelect').val() || new Date().toISOString().substring(0, 10);
+
+        $.ajax({
+            url: '/aus_roster/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
+            type: 'POST',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (data, status, xhr) {
+                var filename = "";
+                var disposition = xhr.getResponseHeader('Content-Disposition');
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    var matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                    if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                }
+                var blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename || "Roster.xlsx";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            error: function () {
+                alert('Failed to export roster.');
+            }
+        });
+    });
 });

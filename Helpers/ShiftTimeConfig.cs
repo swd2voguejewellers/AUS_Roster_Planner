@@ -6,13 +6,14 @@
         public static readonly Dictionary<string, (TimeSpan Open, TimeSpan Close)> OpeningHours =
             new()
             {
-                ["Sunday"] = (TimeSpan.Parse("10:00"), TimeSpan.Parse("17:00")),
+               
                 ["Monday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:30")),
                 ["Tuesday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:30")),
                 ["Wednesday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:30")),
                 ["Thursday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("21:00")),
                 ["Friday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("21:00")),
-                ["Saturday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:00"))
+                ["Saturday"] = (TimeSpan.Parse("09:00"), TimeSpan.Parse("17:00")),
+                ["Sunday"] = (TimeSpan.Parse("10:00"), TimeSpan.Parse("17:00"))
             };
 
         // Optional: For easy list use in views/templates
