@@ -78,7 +78,7 @@
     // ==========================
     // INITIAL LOAD
     // ==========================
-    $.get('/aus_roster/api/staff', function (staffs) {
+    $.get('/api/staff', function (staffs) {
         staffList = staffs.sort((a, b) => {
             if (a.isManager && !b.isManager) return -1;
             if (!a.isManager && b.isManager) return 1;
@@ -129,7 +129,7 @@
         const $tbody = $('#rosterTable tbody');
         const $thead = $('#rosterTable thead');
 
-        $.get(`/aus_roster/api/roster/load?weekStart=${weekStart}`, function (res) {
+        $.get(`/api/roster/load?weekStart=${weekStart}`, function (res) {
             $tbody.find('tr').each(function () {
                 $(this).find('td:gt(0)').remove(); // clear all except first column
             });
@@ -292,7 +292,7 @@
         };
 
         $.ajax({
-            url: '/aus_roster/api/roster/save',
+            url: '/api/roster/save',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(roster),
@@ -447,7 +447,7 @@
         var weekStart = $('#weekSelect').val() || new Date().toISOString().substring(0, 10);
 
         $.ajax({
-            url: '/aus_roster/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
+            url: '/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
             type: 'POST',
             xhrFields: {
                 responseType: 'blob'

@@ -1,10 +1,11 @@
 using ClosedXML.Excel;
+using ShiftPlanner.DTO;
 using ShiftPlanner.Models;
 using System.Globalization;
 
 public static class ExcelExportHelper
 {
-    public static byte[] ExportRosterToExcel(Roster roster)
+    public static byte[] ExportRosterToExcel(Roster roster, IEnumerable<StaffDto> staffList)
     {
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Roster");
@@ -15,11 +16,16 @@ public static class ExcelExportHelper
             .OrderBy(d => d)
             .ToList();
 
-        var staffList = roster.Entries
-            .Select(e => $"ID:{e.StaffId}")
-            .Distinct()
-            .OrderBy(n => n)
-            .ToList();
+        var staffLookup = staffList.ToDictionary(
+                            s => s.EmployeeID,
+                            s => s.FirstName);
+
+        var staffIds = roster.Entries
+                        .Select(e => e.StaffId)
+                        .Distinct()
+                        .OrderBy(id => id)
+                        .ToList();
+
 
         // Header
         worksheet.Cell(1, 1).Value = "Staff";
@@ -33,9 +39,14 @@ public static class ExcelExportHelper
         }
 
         // Data rows
-        for (int row = 0; row < staffList.Count; row++)
+        for (int row = 0; row < staffList.Count(); row++)
         {
-            worksheet.Cell(row + 2, 1).Value = staffList[row];
+            var staffId = staffIds[row];
+            var staffName = staffLookup.ContainsKey(staffId)
+                ? staffLookup[staffId]
+                : $"ID:{staffId}";
+
+            worksheet.Cell(row + 2, 1).Value = $"{staffId} - {staffName}";
 
             for (int col = 0; col < days.Count; col++)
             {
@@ -43,8 +54,8 @@ public static class ExcelExportHelper
                 var cell = worksheet.Cell(row + 2, col + 2);
 
                 var entry = roster.Entries.FirstOrDefault(e =>
-                    $"ID:{e.StaffId}" == staffList[row] &&
-                    e.RosterDate.Date == day);
+                            e.StaffId == staffId &&
+                            e.RosterDate.Date == day);
 
                 // Defaults
                 cell.Value = "N/A";

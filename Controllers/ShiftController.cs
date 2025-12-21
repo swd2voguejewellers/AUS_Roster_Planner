@@ -137,9 +137,10 @@ namespace ShiftPlanner.Controllers
             var roster = await _shiftRepository.GetRosterByWeekAsync(weekStart);
             if (roster == null) return NotFound();
 
-            var fileBytes = ExcelExportHelper.ExportRosterToExcel(roster);
+            var staffList = await _shiftRepository.GetStaffAsync();
 
-            // Format weekStart for filename (avoid / and :)
+            var fileBytes = ExcelExportHelper.ExportRosterToExcel(roster, staffList);
+
             string weekText = weekStart.ToString("yyyy-MM-dd");
             string fileName = $"Roster_{weekText}.xlsx";
 
@@ -149,7 +150,5 @@ namespace ShiftPlanner.Controllers
                 fileName
             );
         }
-
-
     }
 }
