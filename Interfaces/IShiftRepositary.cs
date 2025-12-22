@@ -1,6 +1,5 @@
 ﻿using ShiftPlanner.DTO;
 using ShiftPlanner.Models;
-using ShiftPlanner.ViewModels;
 
 namespace ShiftPlanner.Interfaces
 {
@@ -11,5 +10,6 @@ namespace ShiftPlanner.Interfaces
 
         Task<Roster?> GetRosterByWeekAsync(DateTime weekStart);
         Task<List<Staff>> GetPermanentStaffAsync();
+        Task<PagedResult<RosterHistoryRowDto>> GetRosterHistoryAsync(int page, int pageSize);
     }
 }

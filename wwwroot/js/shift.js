@@ -493,4 +493,38 @@
             async: false
         });
     });
+
+    $(document).on("click", ".btn-download-roster", function () {
+
+        const weekStart = $(this).data("week");
+
+        if (!weekStart) return;
+
+        $.ajax({
+            url: '/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
+            type: 'POST',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (data, status, xhr) {
+                var filename = "";
+                var disposition = xhr.getResponseHeader('Content-Disposition');
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    var matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                    if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                }
+                var blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename || "Roster.xlsx";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            error: function () {
+                alert('Failed to export roster.');
+            }
+        });
+    });
+
 });

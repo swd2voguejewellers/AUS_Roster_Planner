@@ -156,5 +156,12 @@ namespace ShiftPlanner.Controllers
                 fileName
             );
         }
+
+        [HttpGet("api/roster/history")]
+        public async Task<IActionResult> History(int page = 1, int pageSize = 10)
+        {
+            var result = await _shiftRepository.GetRosterHistoryAsync(page, pageSize);
+            return View(result);
+        }
     }
 }

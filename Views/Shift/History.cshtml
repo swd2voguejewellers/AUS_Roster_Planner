@@ -1,0 +1,52 @@
+﻿@using ShiftPlanner.DTO
+@model PagedResult<RosterHistoryRowDto>
+
+<h4 class="mb-3">Roster History</h4>
+
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Week Start</th>
+            <th>Created By</th>
+            <th>Created At</th>
+            <th class="text-center">Download</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Items)
+        {
+            <tr>
+                <td>@r.WeekStart.ToString("yyyy-MM-dd")</td>
+                <td>@r.CreatedBy</td>
+                <td>@r.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td class="text-center">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-success btn-download-roster"
+                            title="Download Excel"
+                            data-week="@r.WeekStart.ToString("yyyy-MM-dd")">
+                        ⬇
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<nav>
+    <ul class="pagination">
+        @{
+            int totalPages = (int)Math.Ceiling((double)Model.TotalCount / Model.PageSize);
+        }
+
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == Model.Page ? "active" : "")">
+                <a class="page-link"
+                   href="@Url.Action("History", new { page = i })">
+                    @i
+                </a>
+            </li>
+        }
+    </ul>
+</nav>

@@ -223,6 +223,40 @@ namespace ShiftPlanner.Repositary
                 .ToListAsync();
         }
 
+        public async Task<PagedResult<RosterHistoryRowDto>> GetRosterHistoryAsync(int page, int pageSize)
+        {
+            var query = _context.Rosters
+                .AsNoTracking()
+                .Where(r => !r.IsDeleted)
+                .OrderByDescending(r => r.WeekStart);
+
+            var total = await query.CountAsync();
+
+            var data = await query
+                            .OrderByDescending(r => r.WeekStart)
+                            .Skip((page - 1) * pageSize)
+                            .Take(pageSize)
+                            .Select(r => new RosterHistoryRowDto
+                            {
+                                RosterId = r.RosterId,
+                                WeekStart = r.WeekStart,
+                                CreatedBy = r.CreatedBy,
+                                CreatedAt = r.CreatedAt,
+                                UpdatedBy = r.UpdatedBy,
+                                UpdatedAt = r.UpdatedAt
+                            })
+                            .ToListAsync();
+
+            return new PagedResult<RosterHistoryRowDto>
+            {
+                Items = data,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+
         private static DateTime GetRosterDate(DateTime weekStart, string dayName)
         {
             if (!Enum.TryParse(dayName, true, out DayOfWeek targetDay))
