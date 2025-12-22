@@ -9,7 +9,7 @@ using ShiftPlanner.Repositary;
 
 namespace ShiftPlanner.Controllers
 {
-    public class ShiftController : Controller
+    public class ShiftController : BaseController
     {
         private readonly IShiftRepositary _shiftRepository;
 
@@ -120,6 +120,12 @@ namespace ShiftPlanner.Controllers
         [HttpPost("api/roster/save")]
         public async Task<IActionResult> Save([FromBody] RosterDto dto)
         {
+            var currentUser = HttpContext.Session.GetString("UserName");
+            if (currentUser != null)
+            {
+                dto.CreatedBy = currentUser;
+                dto.UpdatedBy = currentUser;
+            }
             if (dto == null || dto.Entries.Count == 0)
                 return BadRequest("Invalid roster data.");
 

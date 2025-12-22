@@ -139,7 +139,7 @@ namespace ShiftPlanner.Repositary
                 {
                     existing.UpdatedAt = DateTime.UtcNow;
                     existing.CreatedBy = dto.CreatedBy;
-                    existing.DeletedBy = dto.DeletedBy;
+                    existing.UpdatedBy = dto.UpdatedBy;
                     existing.IsDeleted = dto.IsDeleted;
 
                     // Remove old entries
@@ -167,7 +167,7 @@ namespace ShiftPlanner.Repositary
                     {
                         WeekStart = dto.WeekStart,
                         CreatedBy = dto.CreatedBy,
-                        DeletedBy = dto.DeletedBy,
+                        UpdatedBy = dto.UpdatedBy,
                         CreatedAt = DateTime.UtcNow,
                         IsDeleted = dto.IsDeleted,
                         Entries = dto.Entries.Select(e => new RosterEntry

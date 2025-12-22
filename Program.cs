@@ -8,10 +8,20 @@ var builder = WebApplication.CreateBuilder(args);
 //add db context
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("VogueAusDB"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("HRAttendanceDB"));
 });
+
+// Second DbContext
+builder.Services.AddDbContext<UserDbContext>(options =>
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("VogueAusDB"));
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IShiftRepositary, ShiftRepositary>();
+builder.Services.AddScoped<ILoginRepository, LoginRepository>();
+builder.Services.AddSession();
 
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
@@ -20,6 +30,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseStaticFiles();
+app.UseSession();
 app.UseRouting();
 app.UseAuthorization();
 

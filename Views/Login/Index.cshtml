@@ -1,0 +1,49 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-light">
+
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Login</h5>
+                </div>
+
+                <div class="modal-body">
+                    <input class="form-control mb-2" id="username" placeholder="Username" />
+                    <input type="password" class="form-control" id="password" placeholder="Password" />
+                    <div class="text-danger small" id="err"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary w-100" onclick="login()">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        function login() {
+            $.post("/Login/Auth", {
+                username: $("#username").val(),
+                password: $("#password").val()
+            }).done(r => {
+                if (r.success) {
+                    location.href = "/Shift";
+                } else {
+                    $("#err").text(r.message);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

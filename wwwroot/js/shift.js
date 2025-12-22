@@ -472,4 +472,25 @@
             }
         });
     });
+
+    $("#logoutLink").click(function (e) {
+        e.preventDefault();
+        $.post("/Login/Logout")
+            .done(function () {
+                window.location.href = "/Login";
+            })
+            .fail(function () {
+                alert("Logout failed, please try again.");
+            });
+    });
+
+    // Auto logout on tab/window close
+    $(window).on("beforeunload", function () {
+        // Send a synchronous request before closing
+        $.ajax({
+            type: "POST",
+            url: "/Login/Logout",
+            async: false
+        });
+    });
 });
