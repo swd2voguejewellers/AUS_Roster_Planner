@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Weekly Roster Planner";
 
     // Compute current week
@@ -47,9 +47,18 @@
             </table>
         </div>
 
-        <div class="text-end">
-            <button type="submit" class="btn btn-primary mt-3">Save Roster</button>
+        <div class="text-end mt-3">
+            <button type="submit"
+                    class="btn btn-primary">
+                💾 Save Roster
+            </button>
+            <button type="button"
+                    class="btn btn-success me-2"
+                    id="exportExcelLink">
+                ⬇ Export Excel
+            </button>
         </div>
+
     </form>
 </div>
 

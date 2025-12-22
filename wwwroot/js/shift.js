@@ -522,7 +522,12 @@
                 document.body.removeChild(link);
             },
             error: function () {
-                alert('Failed to export roster.');
+                if (xhr.status == 404) {
+                    alert('Roster is not saved for the selected week.');
+                }
+                else {
+                    alert('Failed to export roster. Please try again.');
+                }
             }
         });
     });
