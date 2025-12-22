@@ -467,8 +467,13 @@
                 link.click();
                 document.body.removeChild(link);
             },
-            error: function () {
-                alert('Failed to export roster.');
+            error: function (err) {
+                if (err.status === 404) {
+                    alert('Please save the Roster for the selected week.');
+                }
+                else {
+                    alert('Failed to export roster. Please try again.');
+                }
             }
         });
     });
@@ -522,12 +527,7 @@
                 document.body.removeChild(link);
             },
             error: function () {
-                if (xhr.status == 404) {
-                    alert('Roster is not saved for the selected week.');
-                }
-                else {
-                    alert('Failed to export roster. Please try again.');
-                }
+                alert('Failed to export roster. Please try again.');
             }
         });
     });
