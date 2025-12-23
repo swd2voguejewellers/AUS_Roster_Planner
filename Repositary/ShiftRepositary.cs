@@ -137,7 +137,7 @@ namespace ShiftPlanner.Repositary
 
                 if (existing != null)
                 {
-                    existing.UpdatedAt = DateTime.UtcNow;
+                    existing.UpdatedAt = DateTime.Now;
                     existing.CreatedBy = dto.CreatedBy;
                     existing.UpdatedBy = dto.UpdatedBy;
                     existing.IsDeleted = dto.IsDeleted;
@@ -157,7 +157,7 @@ namespace ShiftPlanner.Repositary
                             ToTime = entryDto.ToTime,
                             IsLeave = entryDto.IsLeave,
                             LeaveType = entryDto.LeaveType,
-                            CreatedAt = DateTime.UtcNow
+                            CreatedAt = DateTime.Now
                         });
                     }
                 }
@@ -168,7 +168,7 @@ namespace ShiftPlanner.Repositary
                         WeekStart = dto.WeekStart,
                         CreatedBy = dto.CreatedBy,
                         UpdatedBy = dto.UpdatedBy,
-                        CreatedAt = DateTime.UtcNow,
+                        CreatedAt = DateTime.Now,
                         IsDeleted = dto.IsDeleted,
                         Entries = dto.Entries.Select(e => new RosterEntry
                         {
