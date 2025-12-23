@@ -1,11 +1,14 @@
 ﻿@{
     Layout = null;
+    ViewData["Title"] = "Weekly Roster Planner";
 }
 
 <!DOCTYPE html>
 <html>
 <head>
+    <title>@ViewData["Title"] - AusRosterPlanner</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="icon" type="image/png" href="~/favicon.png" asp-append-version="true" />
 </head>
 <body class="bg-light">
 
@@ -32,12 +35,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         function login() {
-            $.post("/Login/Auth", {
+            $.post("/aus_roster/Login/Auth", {
                 username: $("#username").val(),
                 password: $("#password").val()
             }).done(r => {
                 if (r.success) {
-                    location.href = "/Shift";
+                    location.href = "/aus_roster/Shift";
                 } else {
                     $("#err").text(r.message);
                 }

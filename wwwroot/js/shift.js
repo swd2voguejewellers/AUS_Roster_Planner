@@ -78,7 +78,7 @@
     // ==========================
     // INITIAL LOAD
     // ==========================
-    $.get('/api/staff', function (staffs) {
+    $.get('/aus_roster/api/staff', function (staffs) {
         staffList = staffs.sort((a, b) => {
             if (a.isManager && !b.isManager) return -1;
             if (!a.isManager && b.isManager) return 1;
@@ -129,7 +129,7 @@
         const $tbody = $('#rosterTable tbody');
         const $thead = $('#rosterTable thead');
 
-        $.get(`/api/roster/load?weekStart=${weekStart}`, function (res) {
+        $.get(`/aus_roster/api/roster/load?weekStart=${weekStart}`, function (res) {
             $tbody.find('tr').each(function () {
                 $(this).find('td:gt(0)').remove(); // clear all except first column
             });
@@ -292,7 +292,7 @@
         };
 
         $.ajax({
-            url: '/api/roster/save',
+            url: '/aus_roster/api/roster/save',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(roster),
@@ -447,7 +447,7 @@
         var weekStart = $('#weekSelect').val() || new Date().toISOString().substring(0, 10);
 
         $.ajax({
-            url: '/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
+            url: '/aus_roster/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
             type: 'POST',
             xhrFields: {
                 responseType: 'blob'
@@ -480,9 +480,9 @@
 
     $("#logoutLink").click(function (e) {
         e.preventDefault();
-        $.post("/Login/Logout")
+        $.post("/aus_roster/Login/Logout")
             .done(function () {
-                window.location.href = "/Login";
+                window.location.href = "/aus_roster/Login";
             })
             .fail(function () {
                 alert("Logout failed, please try again.");
@@ -494,7 +494,7 @@
         // Send a synchronous request before closing
         $.ajax({
             type: "POST",
-            url: "/Login/Logout",
+            url: "/aus_roster/Login/Logout",
             async: false
         });
     });
@@ -506,7 +506,7 @@
         if (!weekStart) return;
 
         $.ajax({
-            url: '/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
+            url: '/aus_roster/api/roster/excel?weekStart=' + encodeURIComponent(weekStart),
             type: 'POST',
             xhrFields: {
                 responseType: 'blob'
