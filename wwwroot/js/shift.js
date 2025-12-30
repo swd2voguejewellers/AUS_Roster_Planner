@@ -13,7 +13,7 @@
         $weekSelect.empty();
 
         // Generate 5 weeks: past 2, current, next 2
-        for (let offset = -2; offset <= 2; offset++) {
+        for (let offset = 0; offset <= 5; offset++) {
             const sunday = new Date(currentSunday);
             sunday.setDate(sunday.getDate() + offset * 7);
             const saturday = new Date(sunday);
