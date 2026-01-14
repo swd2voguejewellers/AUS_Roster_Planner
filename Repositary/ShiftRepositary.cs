@@ -80,11 +80,11 @@ namespace ShiftPlanner.Repositary
                     if (staff.IsPermanent == true)
                     {
                         var leaveCount = group.Count(e => e.IsLeave);
-                        if (leaveCount > 2)
-                            return (false, $"Permanent staff {staff.FirstName} has more than 2 leave days.");
+                        //if (leaveCount > 2)
+                        //    return (false, $"Permanent staff {staff.FirstName} has more than 2 leave days.");
 
-                        if (leaveCount < 2)
-                            return (false, $"Permanent staff {staff.FirstName} has less than 2 leave days.");
+                        //if (leaveCount < 2)
+                        //    return (false, $"Permanent staff {staff.FirstName} has less than 2 leave days.");
 
                         var invalidWork = group.Any(e => !e.IsLeave && (e.FromTime == null || e.ToTime == null));
                         if (invalidWork)

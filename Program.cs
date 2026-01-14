@@ -21,7 +21,13 @@ builder.Services.AddDbContext<UserDbContext>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IShiftRepositary, ShiftRepositary>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
-builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(360);   // Session timeout
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
