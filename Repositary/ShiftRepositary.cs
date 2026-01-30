@@ -54,7 +54,7 @@ namespace ShiftPlanner.Repositary
                 // 🔹 VALIDATION RULES
                 // -----------------------------
 
-                var staffList = await _context.Staff.Select(s => new StaffDto
+                var staffList = await _context.Staff.Where(s => s.Status == "1").Select(s => new StaffDto
                 {
                     EmployeeID = s.EmployeeID,
                     FirstName = s.NickName,
