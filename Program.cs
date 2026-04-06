@@ -23,7 +23,7 @@ builder.Services.AddScoped<IShiftRepositary, ShiftRepositary>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(360);   // Session timeout
+    options.IdleTimeout = TimeSpan.FromDays(5);   // Session timeout
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

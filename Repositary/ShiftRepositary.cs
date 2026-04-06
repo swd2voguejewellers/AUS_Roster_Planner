@@ -125,8 +125,8 @@ namespace ShiftPlanner.Repositary
                 int permanentStaffCount = staffList.Count(s => s.IsPermanent == true);
 
 
-                if (totalPermanentHours < permanentStaffCount * 40) // 4 permanent staff * 40 hrs each
-                    return (false, "Total permanent staff hours less than required (40h per staff).");
+                //if (totalPermanentHours < permanentStaffCount * 40) // 4 permanent staff * 40 hrs each
+                    //return (false, "Total permanent staff hours less than required (40h per staff).");
 
                 // -----------------------------
                 // 🔹 SAVE / UPDATE ROSTER
